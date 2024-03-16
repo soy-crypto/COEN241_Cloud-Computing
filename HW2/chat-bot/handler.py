@@ -1,32 +1,57 @@
 import json
 import os
-import requests
 import re
 from time import gmtime, strftime
+import subprocess
+import requests
 
 
 def handle(req):
+    print(req)
     #Get the data from user side
-    try:
-        data  = json.loads(req)
-        query = data['question'].lower()
-    except (KeyError, ValueError):
-        return json.dumps({"error": "Invalid request payload"})
-    
+    data  = json.loads(req)
+
     #Build the result for the query from a user
     result = {}
-    if re.search(r'name', query):
-        result = {"name" : "chatbot"}
-    elif re.search(r'time', query):
-        result = {"time" : strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())}
-    else:
-        url = f"http://127.0.0.1:8080/function/figlet"
-        response = requests.get(url)
-        if response.status_code != 200:
-            return json.dumps({"error": "Error fetching weather data"})
+    if 'question' in data:
+        query = data['question']
+        if re.search(r'name', query):
+            result = "chatbot"
+        elif re.search(r'time', query):
+            result = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
+        else:
+            result = {"error": "Invalid request payload"}
 
-        print(json.loads(response.json()))
-        result = {"figlet" : json.loads(response.json())}
-        
+    elif 'figlet' in data:
+        query = data['figlet']
+        url = f'http://45.79.114.201:8080/function/figlet'
+        response = requests.post(url, data=query)
+        result = reponse.text
+        print(response.text)
+    
+    else:
+        print("$")
+        result = {"error": "Invalid request payload"}
+
     #Return
     return json.dumps(result)
+
+
+
+if __name__ == "__main__":
+    
+    req = '{"question": "name"}'
+    result = handle(req)
+    print(json.loads(result), "\n")
+
+    req = '{"question": "time"}'
+    result = handle(req)
+    print(json.loads(result), "\n")
+
+    req = '{"figlet": "Great!"}'
+    result = handle(req)
+    print(json.loads(result))
+    
+    
+    
+    
