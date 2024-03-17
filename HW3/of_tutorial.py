@@ -79,7 +79,7 @@ class Tutorial (object):
     # sending it (len(packet_in.data) should be == packet_in.total_len)).
 
 
-    def act_like_switch (self, packet, packet_in):
+  def act_like_switch (self, packet, packet_in):
     # Learn the port for the source MAC
     # print("Src: ",str(packet.src),":", packet_in.in_port,"Dst:", str(packet.dst))
     if packet.src not in self.mac_to_port:
